@@ -7,7 +7,7 @@ app.use(cors());
 app.use(express.json());
 
 // اكتب مفتاح DeepSeek الخاص بك هنا
-const API_KEY = "sk-43f51d239e2d45ccbd4c7094ff5e0f4e";
+const API_KEY = process.env.DEEPSEEK_KEY;
 
 app.post("/chat", async (req, res) => {
   try {
