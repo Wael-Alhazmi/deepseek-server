@@ -3,12 +3,25 @@ import cors from "cors";
 import axios from "axios";
 
 const app = express();
-app.use(cors());
+
+// السماح لأي موقع بالاتصال (مثل Google Sites)
+app.use(cors({
+  origin: "*",
+  methods: ["POST", "GET"],
+  allowedHeaders: ["Content-Type"]
+}));
+
 app.use(express.json());
 
-// اكتب مفتاح DeepSeek الخاص بك هنا
-const API_KEY = process.env.DEEPSEEK_KEY;
+// استخدم متغير البيئة من Render
+const API_KEY = process.env.API_KEY;
 
+// Route اختبار
+app.get("/", (req, res) => {
+  res.send("DeepSeek server is running");
+});
+
+// Route الشات
 app.post("/chat", async (req, res) => {
   try {
     const userMessage = req.body.message;
@@ -18,7 +31,6 @@ app.post("/chat", async (req, res) => {
       {
         model: "deepseek-chat",
         messages: [
-          { role: "system", content: "أنت مساعد متخصص في دروس الجافا فقط." },
           { role: "user", content: userMessage }
         ]
       },
@@ -30,12 +42,18 @@ app.post("/chat", async (req, res) => {
       }
     );
 
-    res.json({ reply: response.data.choices[0].message.content });
-  } catch (error) {
-    res.json({ reply: "خطأ في الاتصال بالذكاء الاصطناعي." });
+    res.json({
+      reply: response.data.choices[0].message.content
+    });
+
+  } catch (err) {
+    console.error(err.response?.data || err);
+    res.status(500).json({ error: "Server error" });
   }
 });
 
-app.listen(3000, () => {
-  console.log("DeepSeek server running on port 3000");
+// Render required PORT
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+  console.log(`DeepSeek server running on port ${PORT}`);
 });
