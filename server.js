@@ -4,24 +4,15 @@ import axios from "axios";
 
 const app = express();
 
-// السماح لأي موقع بالاتصال (مثل Google Sites)
 app.use(cors({
-  origin: "*",
-  methods: ["POST", "GET"],
-  allowedHeaders: ["Content-Type"]
+  origin: "*",  // مهم جداً لكي يعمل في Google Sites
 }));
 
 app.use(express.json());
 
-// استخدم متغير البيئة من Render
-const API_KEY = process.env.API_KEY;
+// ضع مفتاح DeepSeek هنا
+const API_KEY = process.env.DEEPSEEK_API_KEY;
 
-// Route اختبار
-app.get("/", (req, res) => {
-  res.send("DeepSeek server is running");
-});
-
-// Route الشات
 app.post("/chat", async (req, res) => {
   try {
     const userMessage = req.body.message;
@@ -42,18 +33,21 @@ app.post("/chat", async (req, res) => {
       }
     );
 
-    res.json({
-      reply: response.data.choices[0].message.content
-    });
+    const aiReply = response.data.choices[0].message.content;
 
-  } catch (err) {
-    console.error(err.response?.data || err);
+    res.json({ reply: aiReply });
+
+  } catch (error) {
+    console.error(error.response?.data || error.message);
     res.status(500).json({ error: "Server error" });
   }
 });
 
-// Render required PORT
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`DeepSeek server running on port ${PORT}`);
+app.get("/", (req, res) => {
+  res.send("DeepSeek server is running!");
+});
+
+const port = process.env.PORT || 3000;
+app.listen(port, () => {
+  console.log(`Server running on port ${port}`);
 });
