@@ -6,7 +6,7 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// اجلب API KEY من Render Environment
+// مفتاح DeepSeek
 const API_KEY = process.env.DEEPSEEK_KEY;
 
 app.get("/", (req, res) => {
@@ -18,17 +18,24 @@ app.post("/chat", async (req, res) => {
     const userMessage = req.body.message;
 
     const response = await axios.post(
-      "https://api.deepseek.com/v1/chat/completions",
+      "https://api.deepseek.com/chat/completions",
       {
         model: "deepseek-chat",
         messages: [
+          {
+            role: "system",
+            content:
+              "أنت مساعد ذكي متخصص حصريًا في شرح دروس الجافا فقط. " +
+              "لا تجيب على أي سؤال خارج الجافا. يجب أن تكون الإجابة مختصرة جدًا ومباشرة. " +
+              "عند التحية، قل: وعليكم السلام، مرحباً بكم في المدرب الرقمي! كيف أقدر أساعدك في الجافا؟"
+          },
           { role: "user", content: userMessage }
         ]
       },
       {
         headers: {
           "Content-Type": "application/json",
-          "Authorization": `Bearer ${API_KEY}`
+          Authorization: `Bearer ${API_KEY}`
         }
       }
     );
