@@ -6,8 +6,8 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// مفتاح DeepSeek من المتغيرات البيئية
-const API_KEY = process.env.DEEPSEEK_API_KEY;
+// اجلب API KEY من Render Environment
+const API_KEY = process.env.DEEPSEEK_KEY;
 
 app.get("/", (req, res) => {
   res.send("DeepSeek server is running");
@@ -18,10 +18,12 @@ app.post("/chat", async (req, res) => {
     const userMessage = req.body.message;
 
     const response = await axios.post(
-      "https://api.deepseek.com/chat/completions",
+      "https://api.deepseek.com/v1/chat/completions",
       {
         model: "deepseek-chat",
-        messages: [{ role: "user", content: userMessage }]
+        messages: [
+          { role: "user", content: userMessage }
+        ]
       },
       {
         headers: {
@@ -33,6 +35,7 @@ app.post("/chat", async (req, res) => {
 
     const reply = response.data.choices[0].message.content;
     res.json({ reply });
+
   } catch (error) {
     console.error("DEEPSEEK ERROR:", error.response?.data || error.message);
     res.status(500).json({ error: "Server error" });
